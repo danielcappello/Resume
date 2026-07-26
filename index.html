@@ -633,6 +633,33 @@
   modalClose.addEventListener('click', closeModal);
   overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
   document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && overlay.classList.contains('open')) closeModal(); });
+
+  // ---------- Discord visit notification ----------
+  // Paste your Discord webhook URL below (Channel Settings → Integrations → Webhooks → New Webhook → Copy URL).
+  // Leave blank to disable — nothing fires until a URL is added.
+  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1531036577583861991/XRVDVEQL4z9rhJn39zO77hcB3WZYWsbgay6mqPBOQ5qmiZMHZMn3umkpwjo5tYXwKLOe";
+
+  (function notifyVisit(){
+    if(!DISCORD_WEBHOOK_URL) return;
+    if(sessionStorage.getItem('visitPinged')) return; // once per browser session
+    sessionStorage.setItem('visitPinged', '1');
+
+    fetch(DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [{
+          title: "👀 Resume viewed",
+          description: `Someone just opened your resume site.`,
+          color: 15902781, // amber
+          fields: [
+            { name: "Referrer", value: document.referrer || "Direct / unknown", inline: false }
+          ],
+          timestamp: new Date().toISOString()
+        }]
+      })
+    }).catch(()=>{ /* fail silently — never break the page for a visitor */ });
+  })();
 </script>
 
 </body>
