@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daniel Cappello — Automation &amp; AI Solutions Architect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1B26;
+    --bg2:#0B151E;
+    --panel:#132433;
+    --grid: rgba(255,255,255,0.045);
+    --ink:#E7ECEF;
+    --ink-dim:#8FA3B0;
+    --ink-faint:#5C7383;
+    --line-off:#233949;
+    --amber:#F2A33D;
+    --amber-dim: rgba(242,163,61,0.35);
+    --amber-ink:#231604;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(600px 400px at 85% -5%, rgba(242,163,61,0.09), transparent 60%),
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 100% 44px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 44px 100%,
+      var(--bg);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--amber-dim); color:#fff; }
+  a{ color:var(--amber); text-decoration:none; }
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--amber); outline-offset:3px; }
+
+  .icon{ width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; vertical-align:middle; flex-shrink:0; }
+  .icon.small{ width:14px; height:14px; }
+
+  /* ---------- Cursor glow ---------- */
+  #glow{
+    position:fixed; top:0; left:0; width:520px; height:520px;
+    border-radius:50%; pointer-events:none; z-index:0;
+    background:radial-gradient(circle, rgba(242,163,61,0.06), transparent 70%);
+    transform:translate(-50%,-50%);
+    transition:opacity .3s ease;
+    opacity:0;
+  }
+
+  /* ---------- Top nav ---------- */
+  .topnav{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    background:rgba(14,27,38,0);
+    border-bottom:1px solid transparent;
+    transition:background .3s ease, border-color .3s ease, backdrop-filter .3s ease;
+  }
+  .topnav.solid{
+    background:rgba(14,27,38,0.82);
+    backdrop-filter:blur(10px);
+    border-color:var(--line-off);
+  }
+  .brand{
+    font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:15px;
+    display:flex; align-items:center; gap:9px; color:var(--ink);
+  }
+  .brand-mark{
+    width:28px; height:28px; border-radius:8px; background:var(--amber);
+    color:var(--amber-ink); display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700;
+  }
+  .navlinks{ display:flex; gap:26px; }
+  .navlinks a{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.05em;
+    color:var(--ink-faint); position:relative; padding:4px 0;
+  }
+  .navlinks a::after{
+    content:""; position:absolute; left:0; bottom:-2px; width:0; height:1.5px;
+    background:var(--amber); transition:width .25s ease;
+  }
+  .navlinks a:hover, .navlinks a.active{ color:var(--ink); }
+  .navlinks a.active::after{ width:100%; }
+  .nav-cta{
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+    border:1px solid var(--line-off); padding:8px 16px; border-radius:20px;
+    color:var(--ink); transition:border-color .2s ease, background .2s ease, transform .2s ease;
+  }
+  .nav-cta:hover{ border-color:var(--amber); background:rgba(242,163,61,.08); transform:translateY(-1px); text-decoration:none; }
+  @media (max-width:760px){ .navlinks{ display:none; } }
+
+  .wrap{ max-width:820px; margin:0 auto; padding:0 28px 0; position:relative; z-index:1; }
+
+  .track{ position:absolute; left:8px; top:0; bottom:0; width:2px; background:var(--line-off); }
+  .track-fill{
+    position:absolute; left:0; top:0; width:100%; height:0%;
+    background:linear-gradient(var(--amber), var(--amber));
+    box-shadow:0 0 10px var(--amber-dim);
+    transition:height .08s linear;
+  }
+  .station{ position:relative; padding-left:44px; }
+  .station-dot{
+    position:absolute; left:-1px; top:6px; width:16px; height:16px; border-radius:50%;
+    background:var(--panel); border:2px solid var(--line-off);
+    transition:border-color .4s ease, box-shadow .4s ease, background .4s ease;
+  }
+  .station.lit .station-dot{
+    border-color:var(--amber); background:var(--amber);
+    box-shadow:0 0 0 5px var(--amber-dim), 0 0 14px var(--amber);
+  }
+
+  .badge-circle{
+    width:40px; height:40px; border-radius:50%; border:1px solid var(--line-off);
+    background:var(--panel); display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1), border-color .3s ease;
+  }
+  .badge-circle .icon{ width:19px; height:19px; color:var(--amber); }
+
+  /* ---------- Hero ---------- */
+  header.hero{ padding:70px 0 0; position:relative; min-height:78vh; display:flex; flex-direction:column; justify-content:center; }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--amber); display:flex; align-items:center; gap:10px; margin-bottom:18px;
+    opacity:0; animation: rise .6s ease forwards .1s;
+  }
+  .eyebrow::before{ content:""; width:26px; height:1px; background:var(--amber); }
+  h1{
+    font-family:'Space Grotesk', sans-serif; font-weight:700;
+    font-size:clamp(42px, 7vw, 72px); letter-spacing:-.015em; line-height:1.0; overflow:hidden;
+  }
+  h1 span{ display:inline-block; opacity:0; transform:translateY(110%); animation: rise .7s cubic-bezier(.2,.8,.2,1) forwards; }
+  h1 span:nth-child(1){ animation-delay:.18s; }
+  h1 span:nth-child(2){ animation-delay:.28s; color:var(--amber); }
+
+  .role{
+    font-family:'Space Grotesk', sans-serif; font-weight:500; font-size:clamp(17px,2.4vw,22px);
+    color:var(--ink-dim); margin-top:16px; max-width:520px;
+    opacity:0; animation: rise .6s ease forwards .5s;
+  }
+  .hero-cta{
+    margin-top:32px; display:flex; gap:14px; flex-wrap:wrap;
+    opacity:0; animation: rise .6s ease forwards .62s;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:9px;
+    font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:500;
+    padding:13px 22px; border-radius:30px; cursor:pointer;
+    transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease, background .25s ease, border-color .25s ease;
+  }
+  .btn .icon{ transition:transform .25s ease; }
+  .btn:hover{ transform:translateY(-3px); text-decoration:none; }
+  .btn:hover .icon{ transform:translate(2px,-2px); }
+  .btn-primary{ background:var(--amber); color:var(--amber-ink); }
+  .btn-primary:hover{ box-shadow:0 10px 30px rgba(242,163,61,.28); }
+  .btn-ghost{ border:1px solid var(--line-off); color:var(--ink); }
+  .btn-ghost:hover{ border-color:var(--amber); background:rgba(242,163,61,.07); }
+
+  .capability-strip{ display:flex; gap:28px; flex-wrap:wrap; margin-top:56px; opacity:0; animation: rise .6s ease forwards .78s; }
+  .cap-item{ display:flex; flex-direction:column; align-items:center; gap:9px; cursor:default; }
+  .cap-item:hover .badge-circle{ transform:translateY(-4px) scale(1.06); border-color:var(--amber); }
+  .cap-item .badge-circle{ width:38px; height:38px; }
+  .cap-item span{ font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+
+  /* ambient signal line under hero */
+  .signal-line{ position:relative; height:2px; background:var(--line-off); margin-top:64px; overflow:hidden; border-radius:2px; }
+  .signal-line span{
+    position:absolute; top:0; left:-20%; width:20%; height:100%;
+    background:linear-gradient(90deg, transparent, var(--amber), transparent);
+    animation: travel 3.4s linear infinite;
+  }
+  @keyframes travel{ from{ left:-20%; } to{ left:100%; } }
+
+  @keyframes rise{ to{ opacity:1; transform:translateY(0); } }
+
+  section{ padding:52px 0 6px; }
+  .section-head{ display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+  .section-head .icon{ color:var(--amber); width:17px; height:17px; }
+  .section-num{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-faint); }
+  h2{ font-family:'Space Grotesk', sans-serif; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-dim); font-weight:600; }
+
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  .summary p{ font-size:16.5px; color:var(--ink); max-width:640px; }
+  .summary p + p{ margin-top:12px; color:var(--ink-dim); }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:10px; }
+  .chip{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink-dim);
+    border:1px solid var(--line-off); padding:7px 14px 7px 11px; border-radius:20px;
+    transition:transform .25s cubic-bezier(.2,.8,.2,1), border-color .25s ease, color .25s ease, background .25s ease;
+    background:rgba(255,255,255,0.015);
+  }
+  .chip .icon{ color:var(--amber); opacity:.9; }
+  .chip:hover{ border-color:var(--amber); color:var(--ink); background:rgba(242,163,61,.08); transform:translateY(-3px) rotate(-0.4deg); }
+
+  .highlights{ display:grid; gap:14px; }
+  .hl{
+    display:grid; grid-template-columns:40px 1fr; gap:16px; align-items:center;
+    padding:16px 14px; border-radius:14px; border:1px solid transparent;
+    transition:border-color .25s ease, background .25s ease, transform .25s ease;
+  }
+  .hl:hover{ border-color:var(--line-off); background:rgba(255,255,255,0.02); transform:translateX(4px); }
+  .hl-text{ font-size:15px; color:var(--ink-dim); }
+  .hl-text b{ color:var(--ink); font-weight:600; }
+
+  .job{ margin-bottom:20px; padding:22px; border-radius:16px; border:1px solid var(--line-off); background:rgba(255,255,255,0.012); transition:border-color .3s ease, transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease; }
+  .job:hover{ border-color:var(--amber-dim); transform:translateY(-3px); box-shadow:0 16px 34px rgba(0,0,0,.28); }
+  .job-row{ display:flex; gap:18px; align-items:flex-start; }
+  .job-body{ flex:1; min-width:0; }
+  .job-head{ display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 14px; margin-bottom:2px; }
+  .job-title{ font-family:'Space Grotesk', sans-serif; font-size:19px; font-weight:600; color:var(--ink); }
+  .job-dates{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--amber); }
+  .job-org{ font-size:13.5px; color:var(--ink-faint); margin-bottom:12px; }
+  ul.bullets{ list-style:none; display:grid; gap:9px; }
+  ul.bullets li{ font-size:14.5px; color:var(--ink-dim); display:flex; align-items:flex-start; gap:9px; }
+  ul.bullets li .icon{ color:var(--ink-faint); margin-top:3px; }
+
+  .btn-sm{ padding:9px 16px; font-size:12px; }
+  .see-work{ margin-top:16px; }
+
+  /* ---------- Project modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:200;
+    background:rgba(6,12,18,0.72); backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    opacity:0; pointer-events:none; transition:opacity .3s ease;
+  }
+  .modal-overlay.open{ opacity:1; pointer-events:auto; }
+  .modal-panel{
+    width:100%; max-width:640px; max-height:82vh; overflow-y:auto;
+    background:var(--panel); border:1px solid var(--line-off); border-radius:22px;
+    padding:38px; position:relative;
+    transform:perspective(1200px) rotateX(-14deg) scale(.95); opacity:0;
+    transition:transform .45s cubic-bezier(.2,.8,.2,1), opacity .35s ease;
+  }
+  .modal-overlay.open .modal-panel{ transform:perspective(1200px) rotateX(0) scale(1); opacity:1; }
+  .modal-close{
+    position:absolute; top:20px; right:20px; width:34px; height:34px; border-radius:50%;
+    border:1px solid var(--line-off); background:transparent; color:var(--ink-dim);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:border-color .2s ease, color .2s ease, transform .3s ease;
+  }
+  .modal-close:hover{ border-color:var(--amber); color:var(--ink); transform:rotate(90deg); }
+  .modal-eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--amber); margin-bottom:8px;
+  }
+  .modal-title{
+    font-family:'Space Grotesk', sans-serif; font-size:24px; font-weight:700;
+    color:var(--ink); margin-bottom:26px; padding-right:30px;
+  }
+  .projects-grid{ display:grid; gap:14px; }
+  .project-card{
+    border:1px dashed var(--line-off); border-radius:14px; padding:20px;
+    color:var(--ink-faint); font-size:13.5px; display:flex; align-items:center; gap:12px;
+  }
+  .project-card .icon{ color:var(--ink-faint); }
+  .project-card.filled{
+    border-style:solid; background:rgba(255,255,255,0.02); align-items:flex-start;
+  }
+  .project-card.filled .icon{ color:var(--amber); margin-top:2px; }
+  .project-card h4{ font-family:'Space Grotesk', sans-serif; color:var(--ink); font-size:15px; margin-bottom:5px; }
+  .project-card p{ color:var(--ink-dim); font-size:13.5px; }
+
+  @media (max-width:600px){
+    .modal-panel{ padding:26px; }
+  }
+
+  .edu-grid{ display:grid; gap:10px; }
+  .edu-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; font-size:14.5px; padding:12px 14px; border-radius:12px; transition:background .25s ease; }
+  .edu-row:hover{ background:rgba(255,255,255,0.025); }
+  .edu-left{ display:flex; align-items:center; gap:12px; }
+  .edu-left .icon{ color:var(--amber); width:16px; height:16px; }
+  .edu-row span.date{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-faint); white-space:nowrap; }
+
+  /* ---------- Contact ---------- */
+  .contact-panel{
+    margin-top:26px; padding:56px 40px; border-radius:24px;
+    background:linear-gradient(160deg, var(--panel), var(--bg2));
+    border:1px solid var(--line-off);
+    text-align:center; position:relative; overflow:hidden;
+  }
+  .contact-panel::before{
+    content:""; position:absolute; inset:-40%; background:radial-gradient(circle, rgba(242,163,61,0.12), transparent 60%);
+    animation: drift 9s ease-in-out infinite alternate;
+  }
+  @keyframes drift{ from{ transform:translate(-6%,-4%); } to{ transform:translate(6%,4%); } }
+  .contact-panel h3{
+    position:relative; font-family:'Space Grotesk', sans-serif; font-weight:700;
+    font-size:clamp(26px,4vw,38px); color:var(--ink); margin-bottom:12px;
+  }
+  .contact-panel p{ position:relative; color:var(--ink-dim); font-size:15.5px; max-width:440px; margin:0 auto 30px; }
+  .contact-buttons{ position:relative; display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .contact-fine{ position:relative; margin-top:26px; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-faint); }
+
+  footer{
+    margin-top:44px; padding:26px 0 60px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-faint);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  }
+
+  @media (max-width:600px){
+    .wrap{ padding:0 18px; }
+    .track{ left:4px; }
+    .station{ padding-left:32px; }
+    .station-dot{ left:-3px; width:13px; height:13px; }
+    header.hero{ padding-top:56px; min-height:auto; }
+    .badge-circle{ width:34px; height:34px; }
+    .badge-circle .icon{ width:16px; height:16px; }
+    .hl{ grid-template-columns:34px 1fr; }
+    .contact-panel{ padding:40px 22px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001s !important; transition-duration:0.001s !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="glow"></div>
+
+<svg style="display:none">
+  <symbol id="i-tablet" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="10.5" y1="18" x2="13.5" y2="18"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M6.5 18.5a4.3 4.3 0 0 1-.4-8.6 5.8 5.8 0 0 1 11.2-2A3.9 3.9 0 0 1 17.3 15.5"/><path d="M6.5 18.5h10.8a3 3 0 0 0 0-6h-.3"/></symbol>
+  <symbol id="i-flow" viewBox="0 0 24 24"><circle cx="5" cy="6" r="2.1"/><circle cx="12" cy="18" r="2.1"/><circle cx="19" cy="6" r="2.1"/><path d="M7 7.2 10.3 15.9M17 7.2 13.7 15.9"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><line x1="4" y1="20" x2="4" y2="12"/><line x1="10" y1="20" x2="10" y2="6"/><line x1="16" y1="20" x2="16" y2="14"/><line x1="21" y1="20" x2="21" y2="9"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-4 4v-4H6a2 2 0 0 1-2-2V6z"/><circle cx="9" cy="10" r=".6" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r=".6" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r=".6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><polyline points="9 6 3 12 9 18"/><polyline points="15 6 21 12 15 18"/></symbol>
+  <symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M15.5 14.2c2.5.4 4.5 2.6 4.5 5.8"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></symbol>
+  <symbol id="i-brief" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="3" y1="13" x2="21" y2="13"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="M6 10.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-5.5"/><path d="M22 8v6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 6l9 7 9-7"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6 3h4l1.5 5-3 2c1 2.5 3 4.5 5.5 5.5l2-3 5 1.5v4c0 1.1-.9 2-2 2C10.6 20 4 13.4 4 5c0-1.1.9-2 2-2z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-7.5 7-12.5A7 7 0 0 0 5 9.5C5 14.5 12 22 12 22z"/><circle cx="12" cy="9.5" r="2.3"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><polygon points="13 2 4 14 11 14 10 22 20 10 13 10 13 2"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6L12 3z"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><polygon points="12 2 22 8 12 14 2 8 12 2"/><polyline points="2 14 12 20 22 14"/></symbol>
+  <symbol id="i-rail" viewBox="0 0 24 24"><line x1="4" y1="6" x2="4" y2="20"/><line x1="20" y1="6" x2="20" y2="20"/><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="16" x2="20" y2="16"/></symbol>
+  <symbol id="i-window" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><circle cx="6.3" cy="6.5" r=".6" fill="currentColor" stroke="none"/><circle cx="8.8" cy="6.5" r=".6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><line x1="5" y1="19" x2="19" y2="5"/><polyline points="9 5 19 5 19 15"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="19" height="19" rx="4"/><text x="12" y="16.5" text-anchor="middle" font-size="10.5" font-family="Arial, sans-serif" font-weight="700" fill="currentColor" stroke="none">in</text></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z"/></symbol>
+</svg>
+
+<nav class="topnav" id="topnav">
+  <div class="brand"><div class="brand-mark">DC</div>Daniel Cappello</div>
+  <div class="navlinks">
+    <a href="#summary" data-nav="summary">About</a>
+    <a href="#skills" data-nav="skills">Skills</a>
+    <a href="#highlights" data-nav="highlights">Wins</a>
+    <a href="#experience" data-nav="experience">Work</a>
+    <a href="#education" data-nav="education">Education</a>
+  </div>
+  <a class="nav-cta" href="#contact">Say hi</a>
+</nav>
+
+<div class="wrap">
+  <div class="track"><div class="track-fill" id="trackFill"></div></div>
+
+  <header class="hero station" id="hero">
+    <div class="station-dot"></div>
+    <div class="eyebrow">Adelaide, SA · </div>
+    <h1><span>Hi, I'm</span> <span>Daniel.</span></h1>
+    <p class="role">I design automation &amp; AI that actually ships — from rail networks to agentic chatbots.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="mailto:danielcappello@icloud.com"><svg class="icon"><use href="#i-mail"/></svg>Email me</a>
+      <a class="btn btn-ghost" href="https://au.linkedin.com/in/daniel-cappello-46762296" target="_blank" rel="noopener"><svg class="icon"><use href="#i-linkedin"/></svg>LinkedIn<svg class="icon"><use href="#i-arrow"/></svg></a>
+    </div>
+    <div class="capability-strip">
+      <div class="cap-item"><div class="badge-circle"><svg class="icon"><use href="#i-tablet"/></svg></div><span>Mobility</span></div>
+      <div class="cap-item"><div class="badge-circle"><svg class="icon"><use href="#i-cloud"/></svg></div><span>Cloud</span></div>
+      <div class="cap-item"><div class="badge-circle"><svg class="icon"><use href="#i-db"/></svg></div><span>Data</span></div>
+      <div class="cap-item"><div class="badge-circle"><svg class="icon"><use href="#i-flow"/></svg></div><span>Automation</span></div>
+      <div class="cap-item"><div class="badge-circle"><svg class="icon"><use href="#i-chat"/></svg></div><span>AI</span></div>
+    </div>
+    <div class="signal-line"><span></span></div>
+  </header>
+
+  <section class="station" id="summary">
+    <div class="station-dot"></div>
+    <div class="section-head reveal"><svg class="icon"><use href="#i-layers"/></svg><span class="section-num">01</span><h2>About</h2></div>
+    <div class="summary reveal">
+      <p>Enterprise automation and AI delivery — from asset management systems to agentic tooling.</p>
+      <p>Designs scalable architecture, ships it, keeps it running. Comfortable from opportunity to production.</p>
+    </div>
+  </section>
+
+  <section class="station" id="skills">
+    <div class="station-dot"></div>
+    <div class="section-head reveal"><svg class="icon"><use href="#i-gear"/></svg><span class="section-num">02</span><h2>Skills</h2></div>
+    <div class="chips reveal">
+      <span class="chip"><svg class="icon"><use href="#i-flow"/></svg>Automation Architecture</span>
+      <span class="chip"><svg class="icon"><use href="#i-chat"/></svg>AI-Enabled Assets</span>
+      <span class="chip"><svg class="icon"><use href="#i-code"/></svg>Python · SQL · JS · Java · Swift</span>
+      <span class="chip"><svg class="icon"><use href="#i-cloud"/></svg>AWS Automation</span>
+      <span class="chip"><svg class="icon"><use href="#i-db"/></svg>Enterprise Systems</span>
+      <span class="chip"><svg class="icon"><use href="#i-chart"/></svg>Data &amp; Reporting</span>
+      <span class="chip"><svg class="icon"><use href="#i-people"/></svg>Stakeholder Engagement</span>
+      <span class="chip"><svg class="icon"><use href="#i-gear"/></svg>Process Optimisation</span>
+    </div>
+  </section>
+
+  <section class="station" id="highlights">
+    <div class="station-dot"></div>
+    <div class="section-head reveal"><svg class="icon"><use href="#i-bolt"/></svg><span class="section-num">03</span><h2>Wins</h2></div>
+    <div class="highlights reveal">
+      <div class="hl"><div class="badge-circle"><svg class="icon"><use href="#i-tablet"/></svg></div><div class="hl-text"><b>500+ field users</b> across two mobility rollouts.</div></div>
+      <div class="hl"><div class="badge-circle"><svg class="icon"><use href="#i-gear"/></svg></div><div class="hl-text"><b>System Integration</b> — process automation, system connection.</div></div>
+      <div class="hl"><div class="badge-circle"><svg class="icon"><use href="#i-window"/></svg></div><div class="hl-text"><b>iOS &amp; macOS apps</b>, used daily in production.</div></div>
+      <div class="hl"><div class="badge-circle"><svg class="icon"><use href="#i-spark"/></svg></div><div class="hl-text"><b>AI agents</b> built from scratch for an automotive startup.</div></div>
+    </div>
+  </section>
+
+  <section class="station" id="experience">
+    <div class="station-dot"></div>
+    <div class="section-head reveal"><svg class="icon"><use href="#i-brief"/></svg><span class="section-num">04</span><h2>Work</h2></div>
+
+    <div class="job reveal">
+      <div class="job-row">
+        <div class="badge-circle"><svg class="icon"><use href="#i-rail"/></svg></div>
+        <div class="job-body">
+          <div class="job-head"><span class="job-title">Mobility &amp; Asset Data Lead</span><span class="job-dates">2019 — Now</span></div>
+          <div class="job-org">Australian Rail Track Corporation</div>
+          <ul class="bullets">
+            <li><svg class="icon small"><use href="#i-tablet"/></svg>Automation &amp; mobility solution delivery</li>
+            <li><svg class="icon small"><use href="#i-chart"/></svg>Inspection data → risk &amp; trend analysis</li>
+            <li><svg class="icon small"><use href="#i-flow"/></svg>Training, adoption, process optimisation</li>
+          </ul>
+          <button class="btn btn-primary btn-sm see-work" data-project="artc">See my work<svg class="icon"><use href="#i-arrow"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="job reveal">
+      <div class="job-row">
+        <div class="badge-circle"><svg class="icon"><use href="#i-code"/></svg></div>
+        <div class="job-body">
+          <div class="job-head"><span class="job-title">Software Developer</span><span class="job-dates">2016 — Now</span></div>
+          <div class="job-org">Independent</div>
+          <ul class="bullets">
+            <li><svg class="icon small"><use href="#i-chat"/></svg>AI-enabled chatbot &amp; automation tools</li>
+            <li><svg class="icon small"><use href="#i-db"/></svg>Data pipelines for an investment firm</li>
+            <li><svg class="icon small"><use href="#i-cloud"/></svg>Web, mobile &amp; desktop apps · AWS automation</li>
+          </ul>
+          <button class="btn btn-primary btn-sm see-work" data-project="freelance">See my work<svg class="icon"><use href="#i-arrow"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="job reveal">
+      <div class="job-row">
+        <div class="badge-circle"><svg class="icon"><use href="#i-db"/></svg></div>
+        <div class="job-body">
+          <div class="job-head"><span class="job-title">Asset Management Systems Coordinator</span><span class="job-dates">2015 — 2019</span></div>
+          <div class="job-org">Department for Infrastructure &amp; Transport (SA Gov)</div>
+          <ul class="bullets">
+            <li><svg class="icon small"><use href="#i-db"/></svg>System admin &amp; data governance</li>
+            <li><svg class="icon small"><use href="#i-chart"/></svg>Custom reporting, resource allocation</li>
+            <li><svg class="icon small"><use href="#i-flow"/></svg>Process improvement</li>
+          </ul>
+          <button class="btn btn-primary btn-sm see-work" data-project="dit">See my work<svg class="icon"><use href="#i-arrow"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="station" id="education">
+    <div class="station-dot"></div>
+    <div class="section-head reveal"><svg class="icon"><use href="#i-cap"/></svg><span class="section-num">05</span><h2>Education & Awards</h2></div>
+    <div class="edu-grid reveal">
+      <div class="edu-row"><div class="edu-left"><svg class="icon"><use href="#i-people"/></svg><span>Diploma of Leadership &amp; Management</span></div><span class="date">2022</span></div>
+      <div class="edu-row"><div class="edu-left"><svg class="icon"><use href="#i-cap"/></svg><span>Bachelor of Information Technology</span></div><span class="date">2021</span></div>
+      <div class="edu-row"><div class="edu-left"><svg class="icon"><use href="#i-brief"/></svg><span>Certificate III in Government</span></div><span class="date">2015</span></div>
+      <div class="edu-row"><div class="edu-left"><svg class="icon"><use href="#i-bolt"/></svg><span>Business SA — State Trainee of the Year Finalist</span></div><span class="date">2015</span></div>
+    </div>
+  </section>
+
+  <section class="station" id="contact">
+    <div class="station-dot"></div>
+    <div class="contact-panel reveal">
+      <h3>Let's build something.</h3>
+      <p>Automation, AI, or just a chat about technology — my inbox is open.</p>
+      <div class="contact-buttons">
+        <a class="btn btn-primary" href="mailto:danielcappello@icloud.com"><svg class="icon"><use href="#i-mail"/></svg>danielcappello@icloud.com</a>
+        <a class="btn btn-ghost" href="https://au.linkedin.com/in/daniel-cappello-46762296" target="_blank" rel="noopener"><svg class="icon"><use href="#i-linkedin"/></svg>Connect on LinkedIn<svg class="icon"><use href="#i-arrow"/></svg></a>
+      </div>
+      <div class="contact-fine"><svg class="icon small"><use href="#i-phone"/></svg> 0402 858 924 &nbsp; · &nbsp; <svg class="icon small"><use href="#i-pin"/></svg> Adelaide, SA</div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal-close" id="modalClose" aria-label="Close"><svg class="icon"><use href="#i-close"/></svg></button>
+    <div class="modal-eyebrow">Selected work</div>
+    <div class="modal-title" id="modalTitle">Projects</div>
+    <div class="projects-grid" id="modalProjects"></div>
+  </div>
+</div>
+
+<script>
+  const fill = document.getElementById('trackFill');
+  function updateFill(){
+    const doc = document.documentElement;
+    const scrolled = doc.scrollTop;
+    const max = doc.scrollHeight - doc.clientHeight;
+    const pct = max > 0 ? Math.min(100, (scrolled / max) * 100) : 0;
+    fill.style.height = pct + '%';
+  }
+  document.addEventListener('scroll', updateFill, { passive:true });
+  window.addEventListener('resize', updateFill);
+  updateFill();
+
+  // top nav solid on scroll
+  const topnav = document.getElementById('topnav');
+  function updateNav(){
+    if(window.scrollY > 60){ topnav.classList.add('solid'); } else { topnav.classList.remove('solid'); }
+  }
+  document.addEventListener('scroll', updateNav, { passive:true });
+  updateNav();
+
+  const stations = document.querySelectorAll('.station');
+  const reveals = document.querySelectorAll('.reveal');
+  const navLinks = document.querySelectorAll('.navlinks a');
+
+  const stationObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('lit');
+        const id = e.target.id;
+        navLinks.forEach(l=>l.classList.toggle('active', l.dataset.nav === id));
+      }
+    });
+  }, { threshold:0.4 });
+  stations.forEach(s=>stationObserver.observe(s));
+
+  const revealObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        revealObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold:0.15 });
+  reveals.forEach(r=>revealObserver.observe(r));
+
+  // cursor glow (desktop only, respects reduced motion)
+  const glow = document.getElementById('glow');
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!prefersReduced && window.matchMedia('(hover: hover)').matches){
+    window.addEventListener('mousemove', (e)=>{
+      glow.style.opacity = '1';
+      glow.style.left = e.clientX + 'px';
+      glow.style.top = e.clientY + 'px';
+    }, { passive:true });
+    window.addEventListener('mouseleave', ()=>{ glow.style.opacity = '0'; });
+  }
+
+  // ---------- Project modal ----------
+  const projectsData = {
+    artc: { title:"Mobility & Asset Data Lead", items: [
+      { name:"Field Worker Mobility", desc:"Led in-field deployment of Hitachi Energy's Ellipse FieldWorker mobility solution to 300+ rail staff." },
+      { name:"Data Automation", desc:"Designed and built an end-to-end pipeline from bespoke systems into Azure Databricks and the Asset Management System, removing manual processing entirely." },
+      { name:"Cloud Migration", desc:"Led migration of an on-premise system to the cloud, coordinating technical teams and UAT to minimise user impact." },
+      { name:"ServiceNow", desc:"Managed requests, incidents and projects through ServiceNow, building dashboards to prioritise work and balance team workloads." }
+    ] },
+    freelance: { title:"Software Developer", items: [
+      { name:"Application Development", desc:"Built an iOS and macOS application that significantly reduced daily manual processing for a retail business." },
+      { name:"AI Agent", desc:"Built, trained and deployed an AI agent for an automotive client, streamlining vehicle search and discovery." },
+      { name:"Web Development", desc:"Enhanced checkout flows for a retail client and automated processes using AWS Lambda, Shopify APIs and webhooks." },
+      { name:"Database Administration", desc:"Designed and built a database for an investment client, delivering data-rich sports and racing insights." }
+    ] },
+    dit: { title:"Asset Management Systems Coordinator", items: [
+      { name:"System Administration", desc:"Managed day-to-day administration of IBM's Maximo Asset Management System." },
+      { name:"Field Worker Mobility", desc:"Delivered in-field mobility rollout of IBM Maximo Anywhere to 200+ rail staff." },
+      { name:"JIRA", desc:"Managed requests through JIRA, using sprints to coordinate time-sensitive projects." }
+    ] }
+  };
+
+  const overlay = document.getElementById('modalOverlay');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalProjects = document.getElementById('modalProjects');
+  const modalClose = document.getElementById('modalClose');
+  let lastFocused = null;
+
+  function renderProjects(key){
+    const data = projectsData[key] || { title:"Projects", items:[] };
+    modalTitle.textContent = data.title;
+    if(data.items.length){
+      modalProjects.innerHTML = data.items.map(p => `
+        <div class="project-card filled">
+          <svg class="icon"><use href="#i-spark"/></svg>
+          <div><h4>${p.name}</h4><p>${p.desc}</p></div>
+        </div>
+      `).join('');
+    } else {
+      modalProjects.innerHTML = `
+        <div class="project-card">
+          <svg class="icon"><use href="#i-folder"/></svg>
+          <span>Project detail coming soon — check back shortly.</span>
+        </div>
+      `;
+    }
+  }
+
+  function openModal(key){
+    lastFocused = document.activeElement;
+    renderProjects(key);
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    modalClose.focus();
+  }
+  function closeModal(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    if(lastFocused){ lastFocused.focus(); }
+  }
+
+  document.querySelectorAll('.see-work').forEach(btn=>{
+    btn.addEventListener('click', ()=> openModal(btn.dataset.project));
+  });
+  modalClose.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && overlay.classList.contains('open')) closeModal(); });
+</script>
+
+</body>
+</html>
